@@ -101,6 +101,7 @@ if __name__ == '__main__':
             'pydantic>=1.9.0,<2.0',
             'psutil>=5.4.8',
             'requests>=2.13.0',
+            'flask>=3.0,<4.0',
             'xlsxwriter>=3.0.5',
         ],
         extras_require={
@@ -134,6 +135,10 @@ if __name__ == '__main__':
             "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
         ],
         license='LGPLv3+',
-        entry_points={'console_scripts': ['parser-2gis = parser_2gis:main']},
+        entry_points={'console_scripts': [
+            'parser-2gis = parser_2gis:main',
+            'parser-2gis-bulk = parser_2gis.bulk_export:main',
+            'parser-2gis-webui = parser_2gis.webui:main',
+        ]},
         cmdclass={'build_standalone': BuildStandaloneCommand}
     )

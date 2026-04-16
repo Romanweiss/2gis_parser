@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Подольск",
+    "code": "podolsk",
+    "domain": "ru",
+    "country_code": "ru",
+    "region_name": "Московская область",
+    "source": "custom"
+  },
+  {
+    "name": "Чехов",
+    "code": "chekhov",
+    "domain": "ru",
+    "country_code": "ru",
+    "region_name": "Московская область",
+    "source": "custom"
+  },
+  {
+    "name": "Домодедово",
+    "code": "domodedovo",
+    "domain": "ru",
+    "country_code": "ru",
+    "region_name": "Московская область",
+    "source": "custom"
+  },
+  {
+    "name": "Серпухов",
+    "code": "serpuhov",
+    "domain": "ru",
+    "country_code": "ru",
+    "region_name": "Московская область",
+    "source": "custom"
+  },
+  {
+    "name": "Троицк",
+    "code": "troitsk",
+    "domain": "ru",
+    "country_code": "ru",
+    "region_name": "Москва",
+    "search_code": "moscow",
+    "query_suffix": "Троицк",
+    "source": "custom"
+  }
+]

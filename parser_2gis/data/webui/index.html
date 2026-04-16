@@ -1,0 +1,858 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parser 2GIS UI</title>
+  <style>
+    :root {
+      --bg: #f4f5ef;
+      --card: #ffffff;
+      --card-alt: #f9faf5;
+      --line: #d7dcc9;
+      --text: #1f2a1f;
+      --muted: #66725f;
+      --accent: #2d7f43;
+      --accent-soft: #e5f3e8;
+      --danger: #a63f2c;
+      --shadow: 0 18px 40px rgba(37, 50, 28, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(126, 181, 103, 0.18), transparent 24%),
+        linear-gradient(180deg, #f7f7f1 0%, #eef2e5 100%);
+    }
+
+    .page {
+      max-width: 1560px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .hero-card, .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 24px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: 34px;
+      line-height: 1.05;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 18px;
+      background: linear-gradient(180deg, var(--card-alt), #fff);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 26px;
+      margin-bottom: 4px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 330px 1fr 420px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      padding: 18px;
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: var(--accent);
+    }
+
+    button.secondary {
+      background: #708062;
+    }
+
+    button.ghost {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: default;
+    }
+
+    .pane {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card-alt);
+      overflow: hidden;
+    }
+
+    .pane-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.82);
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .pane-body {
+      max-height: 380px;
+      overflow: auto;
+      padding: 10px;
+    }
+
+    .check-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .check-item {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: #fff;
+    }
+
+    .check-item:hover {
+      border-color: var(--line);
+    }
+
+    .check-item small {
+      display: block;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .status {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .status.failed {
+      background: #f9e8e3;
+      color: var(--danger);
+    }
+
+    pre {
+      margin: 0;
+      padding: 14px;
+      min-height: 220px;
+      max-height: 420px;
+      overflow: auto;
+      border-radius: 16px;
+      background: #162118;
+      color: #e9f8e6;
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .empty {
+      padding: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    a.download {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    @media (max-width: 1260px) {
+      .hero, .layout {
+        grid-template-columns: 1fr;
+      }
+      .stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page { padding: 14px; }
+      .stats { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="hero-card">
+        <h1>Выборочная выгрузка 2GIS по городам и рубрикам</h1>
+        <p>Отмечайте страны, выбирайте города, затем галочками собирайте нужные рубрики. По умолчанию включена Россия, но доступны все страны из справочника проекта. Результат можно сохранить в <strong>Excel (`.xlsx`)</strong> и сразу открыть на хосте в папке <strong>`output`</strong>.</p>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <strong id="countriesCount">0</strong>
+          <span>Стран в справочнике</span>
+        </div>
+        <div class="stat">
+          <strong id="citiesCount">0</strong>
+          <span>Городов доступно</span>
+        </div>
+        <div class="stat">
+          <strong id="rubricsCount">0</strong>
+          <span>Листовых рубрик</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="stack">
+        <div class="card">
+          <h2>Страны</h2>
+          <div class="muted">Россия выбрана по умолчанию. Можно отметить сразу несколько стран.</div>
+          <div class="pane" style="margin-top:12px;">
+            <div class="pane-header">
+              <span>Страны</span>
+              <span class="pill" id="selectedCountriesCount">0 выбрано</span>
+            </div>
+            <div class="pane-body">
+              <div class="check-grid" id="countriesList"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Профили</h2>
+          <div class="row">
+            <select id="profileSelect"></select>
+            <button class="secondary" id="loadProfileBtn">Загрузить</button>
+          </div>
+          <div class="row">
+            <input type="text" id="profileName" placeholder="Имя профиля, например podolsk-medicine">
+            <button id="saveProfileBtn">Сохранить</button>
+          </div>
+          <div class="muted">Профиль сохраняет выбранные города и рубрики в `output/profiles`.</div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card">
+          <h2>Города</h2>
+          <div class="row">
+            <input type="text" id="citySearch" placeholder="Поиск по названию или коду города">
+          </div>
+          <div class="row">
+            <button class="ghost" id="selectVisibleCitiesBtn">Выбрать видимые</button>
+            <button class="secondary" id="clearCitiesBtn">Очистить выбор</button>
+          </div>
+          <div class="pane">
+            <div class="pane-header">
+              <span>Города</span>
+              <span class="pill" id="selectedCitiesCount">0 выбрано</span>
+            </div>
+            <div class="pane-body">
+              <div class="check-grid" id="citiesList"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Рубрики</h2>
+          <div class="row">
+            <input type="text" id="rubricSearch" placeholder="Поиск по рубрике или пути, например аптеки или медицина">
+          </div>
+          <div class="row">
+            <button class="ghost" id="selectVisibleRubricsBtn">Выбрать видимые</button>
+            <button class="secondary" id="clearRubricsBtn">Очистить выбор</button>
+          </div>
+          <div class="pane" style="margin-bottom:12px;">
+            <div class="pane-header">
+              <span>Группы рубрик</span>
+              <span class="pill" id="selectedGroupsCount">0 фильтров</span>
+            </div>
+            <div class="pane-body">
+              <div class="check-grid" id="groupsList"></div>
+            </div>
+          </div>
+          <div class="pane">
+            <div class="pane-header">
+              <span>Листовые рубрики</span>
+              <span class="pill" id="selectedRubricsCount">0 выбрано</span>
+            </div>
+            <div class="pane-body">
+              <div class="check-grid" id="rubricsList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card">
+          <h2>Запуск экспорта</h2>
+          <div class="row">
+            <input type="text" id="outputName" placeholder="Имя выходного файла, можно без .xlsx">
+          </div>
+          <div class="row">
+            <select id="formatSelect">
+              <option value="xlsx">xlsx</option>
+              <option value="csv">csv</option>
+              <option value="json">json</option>
+            </select>
+            <input type="number" id="parserMaxRecords" min="1" placeholder="Лимит записей на рубрику">
+          </div>
+          <div class="row">
+            <label class="check-item" style="grid-template-columns:18px 1fr; width:100%;">
+              <input type="checkbox" id="removeDuplicates" checked>
+              <span>Удалять дубли в итоговом файле</span>
+            </label>
+          </div>
+          <div class="row">
+            <button id="runExportBtn">Запустить экспорт</button>
+          </div>
+          <div class="muted">Файл появится в папке `output` на вашей машине. Для Excel удобнее использовать формат `xlsx`.</div>
+        </div>
+
+        <div class="card">
+          <h2>Статус</h2>
+          <div class="status" id="jobStatus">Ожидаю запуск задачи</div>
+          <div class="row" style="margin-top:12px;">
+            <span class="muted" id="jobMeta">Пока задач нет.</span>
+          </div>
+          <div class="row">
+            <a class="download" id="downloadLink" href="#" target="_blank" style="display:none;">Скачать результат</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Лог выполнения</h2>
+          <pre id="jobLog">Лог появится после запуска.</pre>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const state = {
+      countries: [],
+      cities: [],
+      groups: [],
+      rubrics: [],
+      profiles: [],
+      defaults: {},
+      selectedCountryCodes: new Set(["ru"]),
+      selectedCityCodes: new Set(),
+      selectedGroupIds: new Set(),
+      selectedRubricIds: new Set(),
+      currentJobId: null,
+      pollTimer: null
+    };
+
+    const el = (id) => document.getElementById(id);
+
+    function compatibleMode() {
+      const codes = [...state.selectedCountryCodes];
+      if (codes.length === 0) return "all";
+      if (codes.includes("ru") && codes.some((code) => code !== "ru")) return "all";
+      return codes.includes("ru") ? "ru" : "non_ru";
+    }
+
+    function rubricCompatible(rubric) {
+      const mode = compatibleMode();
+      if (mode === "ru") return rubric.is_russian;
+      if (mode === "non_ru") return rubric.is_non_russian;
+      return true;
+    }
+
+    function selectedSelection() {
+      return {
+        city_codes: [...state.selectedCityCodes],
+        rubric_ids: [...state.selectedRubricIds]
+      };
+    }
+
+    function pruneSelections() {
+      const countryCodes = state.selectedCountryCodes;
+      state.selectedCityCodes = new Set(
+        [...state.selectedCityCodes].filter((code) => {
+          const city = state.cities.find((item) => item.code === code);
+          return city && (countryCodes.size === 0 || countryCodes.has(city.country_code));
+        })
+      );
+
+      state.selectedRubricIds = new Set(
+        [...state.selectedRubricIds].filter((code) => {
+          const rubric = state.rubrics.find((item) => item.code === code);
+          return rubric && rubricCompatible(rubric);
+        })
+      );
+
+      const visibleGroupIds = new Set(filteredGroups().map((group) => group.code));
+      state.selectedGroupIds = new Set(
+        [...state.selectedGroupIds].filter((code) => visibleGroupIds.has(code))
+      );
+      if (state.selectedGroupIds.size === 0) {
+        state.selectedGroupIds = visibleGroupIds;
+      }
+    }
+
+    function filteredCities() {
+      const query = el("citySearch").value.trim().toLowerCase();
+      return state.cities.filter((city) => {
+        const fitsCountry = state.selectedCountryCodes.size === 0 || state.selectedCountryCodes.has(city.country_code);
+        const text = `${city.name} ${city.code} ${city.region_name || ""}`.toLowerCase();
+        return fitsCountry && (!query || text.includes(query));
+      });
+    }
+
+    function filteredGroups() {
+      const mode = compatibleMode();
+      return state.groups.filter((group) => {
+        if (mode === "ru") return group.ru_leaf_count > 0;
+        if (mode === "non_ru") return group.non_ru_leaf_count > 0;
+        return group.leaf_count > 0;
+      });
+    }
+
+    function filteredRubrics() {
+      const query = el("rubricSearch").value.trim().toLowerCase();
+      return state.rubrics.filter((rubric) => {
+        const fitsGroup = state.selectedGroupIds.has(rubric.top_group_id);
+        const fitsCountry = rubricCompatible(rubric);
+        const text = `${rubric.label} ${rubric.path} ${rubric.top_group_label}`.toLowerCase();
+        return fitsGroup && fitsCountry && (!query || text.includes(query));
+      });
+    }
+
+    function makeCheckItem({ checked, title, subtitle, onChange }) {
+      const wrapper = document.createElement("label");
+      wrapper.className = "check-item";
+
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = checked;
+      input.addEventListener("change", onChange);
+
+      const text = document.createElement("span");
+      text.textContent = title;
+      if (subtitle) {
+        const small = document.createElement("small");
+        small.textContent = subtitle;
+        text.appendChild(small);
+      }
+
+      wrapper.appendChild(input);
+      wrapper.appendChild(text);
+      return wrapper;
+    }
+
+    function renderCountries() {
+      const container = el("countriesList");
+      container.innerHTML = "";
+      for (const country of state.countries) {
+        container.appendChild(makeCheckItem({
+          checked: state.selectedCountryCodes.has(country.code),
+          title: `${country.label} (${country.city_count})`,
+          subtitle: country.code.toUpperCase(),
+          onChange: (event) => {
+            if (event.target.checked) {
+              state.selectedCountryCodes.add(country.code);
+            } else {
+              state.selectedCountryCodes.delete(country.code);
+            }
+            pruneSelections();
+            renderAll();
+          }
+        }));
+      }
+      el("selectedCountriesCount").textContent = `${state.selectedCountryCodes.size} выбрано`;
+    }
+
+    function renderCities() {
+      const visible = filteredCities();
+      const container = el("citiesList");
+      container.innerHTML = "";
+
+      if (visible.length === 0) {
+        container.innerHTML = '<div class="empty">По текущему фильтру города не найдены.</div>';
+      } else {
+        for (const city of visible) {
+          const subtitleParts = [city.code, city.country_code.toUpperCase()];
+          if (city.region_name) subtitleParts.push(city.region_name);
+          if (city.source === "custom") subtitleParts.push("custom");
+          container.appendChild(makeCheckItem({
+            checked: state.selectedCityCodes.has(city.code),
+            title: city.name,
+            subtitle: subtitleParts.join(" • "),
+            onChange: (event) => {
+              if (event.target.checked) {
+                state.selectedCityCodes.add(city.code);
+              } else {
+                state.selectedCityCodes.delete(city.code);
+              }
+              renderCounters();
+            }
+          }));
+        }
+      }
+
+      el("selectedCitiesCount").textContent = `${state.selectedCityCodes.size} выбрано`;
+    }
+
+    function renderGroups() {
+      const container = el("groupsList");
+      container.innerHTML = "";
+      const visible = filteredGroups();
+      for (const group of visible) {
+        container.appendChild(makeCheckItem({
+          checked: state.selectedGroupIds.has(group.code),
+          title: group.label,
+          subtitle: `${group.leaf_count} листовых рубрик`,
+          onChange: (event) => {
+            if (event.target.checked) {
+              state.selectedGroupIds.add(group.code);
+            } else {
+              state.selectedGroupIds.delete(group.code);
+            }
+            renderRubrics();
+            renderCounters();
+          }
+        }));
+      }
+      el("selectedGroupsCount").textContent = `${state.selectedGroupIds.size} фильтров`;
+    }
+
+    function renderRubrics() {
+      const visible = filteredRubrics();
+      const container = el("rubricsList");
+      container.innerHTML = "";
+
+      if (visible.length === 0) {
+        container.innerHTML = '<div class="empty">По текущему фильтру рубрики не найдены.</div>';
+      } else {
+        for (const rubric of visible) {
+          container.appendChild(makeCheckItem({
+            checked: state.selectedRubricIds.has(rubric.code),
+            title: rubric.label,
+            subtitle: rubric.path,
+            onChange: (event) => {
+              if (event.target.checked) {
+                state.selectedRubricIds.add(rubric.code);
+              } else {
+                state.selectedRubricIds.delete(rubric.code);
+              }
+              renderCounters();
+            }
+          }));
+        }
+      }
+
+      el("selectedRubricsCount").textContent = `${state.selectedRubricIds.size} выбрано`;
+    }
+
+    function renderProfiles() {
+      const select = el("profileSelect");
+      select.innerHTML = "";
+
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = state.profiles.length ? "Выберите сохранённый профиль" : "Пока нет сохранённых профилей";
+      select.appendChild(defaultOption);
+
+      for (const profile of state.profiles) {
+        const option = document.createElement("option");
+        option.value = profile.name;
+        option.textContent = `${profile.display_name} • города: ${profile.cities_count}, рубрики: ${profile.rubrics_count}`;
+        select.appendChild(option);
+      }
+    }
+
+    function renderCounters() {
+      el("countriesCount").textContent = state.countries.length;
+      el("citiesCount").textContent = state.cities.length;
+      el("rubricsCount").textContent = state.rubrics.length;
+      el("selectedCountriesCount").textContent = `${state.selectedCountryCodes.size} выбрано`;
+      el("selectedCitiesCount").textContent = `${state.selectedCityCodes.size} выбрано`;
+      el("selectedGroupsCount").textContent = `${state.selectedGroupIds.size} фильтров`;
+      el("selectedRubricsCount").textContent = `${state.selectedRubricIds.size} выбрано`;
+    }
+
+    function renderAll() {
+      renderCountries();
+      renderCities();
+      renderGroups();
+      renderRubrics();
+      renderProfiles();
+      renderCounters();
+    }
+
+    async function refreshProfiles() {
+      const response = await fetch("/api/profiles");
+      const data = await response.json();
+      state.profiles = data.profiles || [];
+      renderProfiles();
+    }
+
+    async function loadProfile() {
+      const name = el("profileSelect").value;
+      if (!name) return;
+
+      const response = await fetch(`/api/profiles/${encodeURIComponent(name)}`);
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.error || "Не удалось загрузить профиль.");
+        return;
+      }
+
+      state.selectedCountryCodes = new Set((data.cities || []).map((city) => city.country_code));
+      state.selectedCityCodes = new Set((data.cities || []).map((city) => city.code));
+      state.selectedRubricIds = new Set(data.rubric_ids || []);
+      state.selectedGroupIds = new Set(data.group_ids || state.groups.map((group) => group.code));
+      pruneSelections();
+      renderAll();
+    }
+
+    async function saveProfile() {
+      const name = el("profileName").value.trim();
+      if (!name) {
+        alert("Введите имя профиля.");
+        return;
+      }
+
+      const response = await fetch("/api/profiles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          selection: selectedSelection()
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.error || "Не удалось сохранить профиль.");
+        return;
+      }
+
+      el("profileName").value = "";
+      await refreshProfiles();
+      alert(`Профиль сохранён: ${data.profile.display_name}`);
+    }
+
+    function setJobState(data) {
+      state.currentJobId = data.id || state.currentJobId;
+      const statusEl = el("jobStatus");
+      const logEl = el("jobLog");
+      const metaEl = el("jobMeta");
+      const linkEl = el("downloadLink");
+
+      statusEl.textContent = data.status || "unknown";
+      statusEl.classList.toggle("failed", data.status === "failed");
+      logEl.textContent = data.log || "Лог пуст.";
+
+      let meta = data.output_name || "Файл не назначен";
+      if (data.output_exists) {
+        meta += ` • размер: ${data.output_size} байт`;
+      }
+      if (data.return_code !== undefined && data.return_code !== null) {
+        meta += ` • код возврата: ${data.return_code}`;
+      }
+      metaEl.textContent = meta;
+
+      if (data.download_url && data.output_exists) {
+        linkEl.style.display = "inline";
+        linkEl.href = data.download_url;
+      } else {
+        linkEl.style.display = "none";
+      }
+    }
+
+    async function pollJob() {
+      if (!state.currentJobId) return;
+      const response = await fetch(`/api/jobs/${state.currentJobId}`);
+      const data = await response.json();
+      if (!response.ok) return;
+      setJobState(data);
+
+      if (data.status === "running" || data.status === "queued") {
+        state.pollTimer = window.setTimeout(pollJob, 2500);
+      } else {
+        state.pollTimer = null;
+      }
+    }
+
+    async function runExport() {
+      const response = await fetch("/api/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          selection: selectedSelection(),
+          output_name: el("outputName").value.trim(),
+          format: el("formatSelect").value,
+          parser_max_records: el("parserMaxRecords").value.trim(),
+          remove_duplicates: el("removeDuplicates").checked
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.error || "Не удалось запустить экспорт.");
+        return;
+      }
+
+      if (state.pollTimer) {
+        window.clearTimeout(state.pollTimer);
+      }
+      setJobState(data);
+      pollJob();
+    }
+
+    async function init() {
+      const response = await fetch("/api/bootstrap");
+      const data = await response.json();
+
+      state.countries = data.countries || [];
+      state.cities = data.cities || [];
+      state.groups = data.groups || [];
+      state.rubrics = data.rubrics || [];
+      state.profiles = data.profiles || [];
+      state.defaults = data.defaults || {};
+
+      state.selectedCountryCodes = new Set(state.defaults.country_codes || ["ru"]);
+      state.selectedGroupIds = new Set(state.groups.map((group) => group.code));
+
+      el("formatSelect").value = state.defaults.format || "xlsx";
+      el("removeDuplicates").checked = !!state.defaults.remove_duplicates;
+      el("parserMaxRecords").value = state.defaults.parser_max_records || "";
+
+      el("citySearch").addEventListener("input", renderCities);
+      el("rubricSearch").addEventListener("input", renderRubrics);
+
+      el("selectVisibleCitiesBtn").addEventListener("click", () => {
+        for (const city of filteredCities()) state.selectedCityCodes.add(city.code);
+        renderCounters();
+        renderCities();
+      });
+      el("clearCitiesBtn").addEventListener("click", () => {
+        state.selectedCityCodes.clear();
+        renderCounters();
+        renderCities();
+      });
+
+      el("selectVisibleRubricsBtn").addEventListener("click", () => {
+        for (const rubric of filteredRubrics()) state.selectedRubricIds.add(rubric.code);
+        renderCounters();
+        renderRubrics();
+      });
+      el("clearRubricsBtn").addEventListener("click", () => {
+        state.selectedRubricIds.clear();
+        renderCounters();
+        renderRubrics();
+      });
+
+      el("loadProfileBtn").addEventListener("click", loadProfile);
+      el("saveProfileBtn").addEventListener("click", saveProfile);
+      el("runExportBtn").addEventListener("click", runExport);
+
+      renderAll();
+    }
+
+    init().catch((error) => {
+      el("jobStatus").textContent = "Ошибка инициализации";
+      el("jobStatus").classList.add("failed");
+      el("jobLog").textContent = String(error);
+    });
+  </script>
+</body>
+</html>
