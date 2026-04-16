@@ -15,7 +15,7 @@
 
 ## Требования
 
-Нужно, чтобы на компьютере были установлены:
+На компьютере должны быть установлены:
 
 - Docker Desktop или Docker Engine
 - Docker Compose
@@ -29,11 +29,19 @@ docker compose version
 
 ## Где выполнять команды
 
-Перейдите в корень проекта:
+Перейдите в корень клонированного репозитория, в ту папку, где лежат:
+
+- `Dockerfile`
+- `docker-compose.yml`
+- `README.md`
+
+Пример:
 
 ```powershell
-cd F:\Learning_projects\2gisparser\parser-2gis
+cd path\to\parser-2gis
 ```
+
+Если вы уже находитесь в корне проекта, ничего дополнительно делать не нужно.
 
 ## Сборка образа
 
@@ -95,10 +103,10 @@ docker compose run --rm parser-2gis `
   --chrome.headless yes
 ```
 
-Файл появится в:
+Файл появится в локальной папке:
 
 ```text
-F:\Learning_projects\2gisparser\parser-2gis\output
+.\output
 ```
 
 ## Пакетный экспорт по рубрикам

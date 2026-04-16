@@ -26,10 +26,21 @@ def test_build_leaf_rubric_records_contains_top_group_and_path():
 
 def test_build_city_records_preserves_custom_search_fields():
     cities = build_city_records(load_cities())
+    balashikha = next(city for city in cities if city['code'] == 'balashikha')
     troitsk = next(city for city in cities if city['code'] == 'troitsk')
 
+    assert balashikha['search_code'] == 'moscow_region'
+    assert balashikha['query_suffix'] == 'Балашиха'
     assert troitsk['search_code'] == 'moscow'
-    assert troitsk['query_suffix'] == 'Троицк'
+
+
+def test_build_city_records_contains_many_custom_moscow_region_cities():
+    cities = build_city_records(load_cities())
+    custom_cities = [city for city in cities if city.get('source') == 'custom']
+
+    assert len(custom_cities) >= 60
+    assert any(city['code'] == 'khimki' for city in custom_cities)
+    assert any(city['code'] == 'mytishchi' for city in custom_cities)
 
 
 def test_rubric_matches_preset_respects_include_and_exclude_terms():

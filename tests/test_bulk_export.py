@@ -25,17 +25,34 @@ def test_build_search_url_for_russian_city():
     )
 
 
-def test_load_cities_includes_custom_moscow_region_cities():
-    city_codes = {city['code'] for city in load_cities()}
+def test_load_cities_includes_many_custom_moscow_region_cities():
+    cities = load_cities()
+    city_codes = {city['code'] for city in cities}
 
     assert 'podolsk' in city_codes
     assert 'chekhov' in city_codes
     assert 'domodedovo' in city_codes
     assert 'serpuhov' in city_codes
-    assert 'troitsk' in city_codes
+    assert 'balashikha' in city_codes
+    assert 'khimki' in city_codes
+    assert 'mytishchi' in city_codes
+    assert len([city for city in cities if city.get('source') == 'custom']) >= 60
 
 
-def test_build_search_url_supports_custom_search_code_and_suffix():
+def test_build_search_url_supports_custom_region_search_code_and_suffix():
+    city = {
+        'code': 'balashikha',
+        'domain': 'ru',
+        'search_code': 'moscow_region',
+        'query_suffix': 'Балашиха',
+    }
+    rubric = {'label': 'Аптеки', 'code': '207'}
+    assert build_search_url(city=city, rubric=rubric) == (
+        'https://2gis.ru/moscow_region/search/Аптеки Балашиха/rubricId/207/filters/sort=name'
+    )
+
+
+def test_build_search_url_supports_troitsk_special_case():
     city = {
         'code': 'troitsk',
         'domain': 'ru',
