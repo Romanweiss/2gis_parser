@@ -28,19 +28,26 @@ def test_build_city_records_preserves_custom_search_fields():
     cities = build_city_records(load_cities())
     balashikha = next(city for city in cities if city['code'] == 'balashikha')
     troitsk = next(city for city in cities if city['code'] == 'troitsk')
+    verkhoyansk = next(city for city in cities if city['code'] == 'verkhoyansk')
+    mirny = next(city for city in cities if city['code'] == 'mirny')
 
     assert balashikha['search_code'] == 'moscow_region'
     assert balashikha['query_suffix'] == 'Балашиха'
     assert troitsk['search_code'] == 'moscow'
+    assert verkhoyansk['search_code'] == 'geo/70030076128027117'
+    assert mirny['search_code'] == 'mirnyj-yakutia-region'
 
 
-def test_build_city_records_contains_many_custom_moscow_region_cities():
+def test_build_city_records_contains_many_custom_region_cities():
     cities = build_city_records(load_cities())
     custom_cities = [city for city in cities if city.get('source') == 'custom']
 
-    assert len(custom_cities) >= 60
+    assert len(custom_cities) >= 80
     assert any(city['code'] == 'khimki' for city in custom_cities)
     assert any(city['code'] == 'mytishchi' for city in custom_cities)
+    assert any(city['code'] == 'aldan' for city in custom_cities)
+    assert any(city['code'] == 'neryungri' for city in custom_cities)
+    assert any(city['code'] == 'udachny' for city in custom_cities)
 
 
 def test_rubric_matches_preset_respects_include_and_exclude_terms():

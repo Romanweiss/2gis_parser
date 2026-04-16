@@ -25,7 +25,7 @@ def test_build_search_url_for_russian_city():
     )
 
 
-def test_load_cities_includes_many_custom_moscow_region_cities():
+def test_load_cities_includes_many_custom_region_cities():
     cities = load_cities()
     city_codes = {city['code'] for city in cities}
 
@@ -36,7 +36,12 @@ def test_load_cities_includes_many_custom_moscow_region_cities():
     assert 'balashikha' in city_codes
     assert 'khimki' in city_codes
     assert 'mytishchi' in city_codes
-    assert len([city for city in cities if city.get('source') == 'custom']) >= 60
+    assert 'aldan' in city_codes
+    assert 'verkhoyansk' in city_codes
+    assert 'mirny' in city_codes
+    assert 'neryungri' in city_codes
+    assert 'udachny' in city_codes
+    assert len([city for city in cities if city.get('source') == 'custom']) >= 80
 
 
 def test_build_search_url_supports_custom_region_search_code_and_suffix():
@@ -62,6 +67,18 @@ def test_build_search_url_supports_troitsk_special_case():
     rubric = {'label': 'Аптеки', 'code': '207'}
     assert build_search_url(city=city, rubric=rubric) == (
         'https://2gis.ru/moscow/search/Аптеки Троицк/rubricId/207/filters/sort=name'
+    )
+
+
+def test_build_search_url_supports_geo_search_code_for_verkhoyansk():
+    city = {
+        'code': 'verkhoyansk',
+        'domain': 'ru',
+        'search_code': 'geo/70030076128027117',
+    }
+    rubric = {'label': 'Аптеки', 'code': '207'}
+    assert build_search_url(city=city, rubric=rubric) == (
+        'https://2gis.ru/geo/70030076128027117/search/Аптеки/rubricId/207/filters/sort=name'
     )
 
 

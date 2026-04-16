@@ -73,5 +73,17 @@
   {"name": "Электрогорск", "code": "elektrogorsk", "domain": "ru", "country_code": "ru", "region_name": "Московская область", "search_code": "moscow_region", "query_suffix": "Электрогорск", "source": "custom"},
   {"name": "Электросталь", "code": "elektrostal", "domain": "ru", "country_code": "ru", "region_name": "Московская область", "search_code": "moscow_region", "query_suffix": "Электросталь", "source": "custom"},
   {"name": "Электроугли", "code": "elektrougli", "domain": "ru", "country_code": "ru", "region_name": "Московская область", "search_code": "moscow_region", "query_suffix": "Электроугли", "source": "custom"},
-  {"name": "Яхрома", "code": "yakhroma", "domain": "ru", "country_code": "ru", "region_name": "Московская область", "search_code": "moscow_region", "query_suffix": "Яхрома", "source": "custom"}
+  {"name": "Яхрома", "code": "yakhroma", "domain": "ru", "country_code": "ru", "region_name": "Московская область", "search_code": "moscow_region", "query_suffix": "Яхрома", "source": "custom"},
+  {"name": "Алдан", "code": "aldan", "domain": "ru", "country_code": "ru", "region_name": "Республика Саха (Якутия)", "source": "custom"},
+  {"name": "Верхоянск", "code": "verkhoyansk", "domain": "ru", "country_code": "ru", "region_name": "Республика Саха (Якутия)", "search_code": "geo/70030076128027117", "source": "custom"},
+  {"name": "Вилюйск", "code": "vilyuysk", "domain": "ru", "country_code": "ru", "region_name": "Республика Саха (Якутия)", "search_code": "vilyujsk", "source": "custom"},
+  {"name": "Ленск", "code": "lensk", "domain": "ru", "country_code": "ru", "region_name": "Республика Саха (Якутия)", "source": "custom"},
+  {"name": "Мирный", "code": "mirny", "domain": "ru", "country_code": "ru", "region_name": "Республика Саха (Якутия)", "search_code": "mirnyj-yakutia-region", "source": "custom"},
+  {"name": "Нерюнгри", "code": "neryungri", "domain": "ru", "country_code": "ru", "region_name": "Республика Саха (Якутия)", "source": "custom"},
+  {"name": "Нюрба", "code": "nyurba", "domain": "ru", "country_code": "ru", "region_name": "Республика Саха (Якутия)", "source": "custom"},
+  {"name": "Олёкминск", "code": "olekminsk", "domain": "ru", "country_code": "ru", "region_name": "Республика Саха (Якутия)", "search_code": "olyokminsk", "source": "custom"},
+  {"name": "Покровск", "code": "pokrovsk_yakutia", "domain": "ru", "country_code": "ru", "region_name": "Республика Саха (Якутия)", "search_code": "pokrovsk", "source": "custom"},
+  {"name": "Среднеколымск", "code": "srednekolymsk", "domain": "ru", "country_code": "ru", "region_name": "Республика Саха (Якутия)", "source": "custom"},
+  {"name": "Томмот", "code": "tommot", "domain": "ru", "country_code": "ru", "region_name": "Республика Саха (Якутия)", "source": "custom"},
+  {"name": "Удачный", "code": "udachny", "domain": "ru", "country_code": "ru", "region_name": "Республика Саха (Якутия)", "search_code": "udachnyj", "source": "custom"}
 ]
