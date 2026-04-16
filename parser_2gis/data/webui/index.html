@@ -327,6 +327,18 @@
           </div>
           <div class="muted">Профиль сохраняет выбранные города и рубрики в `output/profiles`.</div>
         </div>
+
+        <div class="card">
+          <h2>Пресеты</h2>
+          <div class="row">
+            <select id="presetSelect"></select>
+          </div>
+          <div class="row">
+            <button id="applyPresetBtn">Заменить выбор</button>
+            <button class="secondary" id="mergePresetBtn">Добавить к выбору</button>
+          </div>
+          <div class="muted" id="presetHint">Выберите пресет, чтобы быстро отметить подходящие конечные рубрики.</div>
+        </div>
       </div>
 
       <div class="stack">
@@ -430,6 +442,7 @@
       countries: [],
       cities: [],
       groups: [],
+      presets: [],
       rubrics: [],
       profiles: [],
       defaults: {},
@@ -487,6 +500,11 @@
       if (state.selectedGroupIds.size === 0) {
         state.selectedGroupIds = visibleGroupIds;
       }
+    }
+
+    function selectedPreset() {
+      const presetId = el("presetSelect").value;
+      return state.presets.find((preset) => preset.id === presetId) || null;
     }
 
     function filteredCities() {
@@ -660,6 +678,31 @@
       }
     }
 
+    function renderPresets() {
+      const select = el("presetSelect");
+      const hint = el("presetHint");
+      select.innerHTML = "";
+
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = state.presets.length ? "Выберите пресет рубрик" : "Пресеты пока недоступны";
+      select.appendChild(defaultOption);
+
+      for (const preset of state.presets) {
+        const option = document.createElement("option");
+        option.value = preset.id;
+        option.textContent = `${preset.label} • ${preset.rubrics_count} рубрик`;
+        select.appendChild(option);
+      }
+
+      const preset = selectedPreset();
+      if (preset) {
+        hint.textContent = preset.description || `Будет выбрано рубрик: ${preset.rubrics_count}`;
+      } else {
+        hint.textContent = "Выберите пресет, чтобы быстро отметить подходящие конечные рубрики.";
+      }
+    }
+
     function renderCounters() {
       el("countriesCount").textContent = state.countries.length;
       el("citiesCount").textContent = state.cities.length;
@@ -676,6 +719,7 @@
       renderGroups();
       renderRubrics();
       renderProfiles();
+      renderPresets();
       renderCounters();
     }
 
@@ -729,6 +773,29 @@
       el("profileName").value = "";
       await refreshProfiles();
       alert(`Профиль сохранён: ${data.profile.display_name}`);
+    }
+
+    function applyPreset(mode) {
+      const preset = selectedPreset();
+      if (!preset) {
+        alert("Сначала выберите пресет.");
+        return;
+      }
+
+      if (mode === "replace") {
+        state.selectedGroupIds = new Set(preset.group_ids || []);
+        state.selectedRubricIds = new Set(preset.rubric_ids || []);
+      } else {
+        for (const groupId of preset.group_ids || []) {
+          state.selectedGroupIds.add(groupId);
+        }
+        for (const rubricId of preset.rubric_ids || []) {
+          state.selectedRubricIds.add(rubricId);
+        }
+      }
+
+      pruneSelections();
+      renderAll();
     }
 
     function setJobState(data) {
@@ -805,6 +872,7 @@
       state.countries = data.countries || [];
       state.cities = data.cities || [];
       state.groups = data.groups || [];
+      state.presets = data.presets || [];
       state.rubrics = data.rubrics || [];
       state.profiles = data.profiles || [];
       state.defaults = data.defaults || {};
@@ -843,6 +911,9 @@
 
       el("loadProfileBtn").addEventListener("click", loadProfile);
       el("saveProfileBtn").addEventListener("click", saveProfile);
+      el("presetSelect").addEventListener("change", renderPresets);
+      el("applyPresetBtn").addEventListener("click", () => applyPreset("replace"));
+      el("mergePresetBtn").addEventListener("click", () => applyPreset("merge"));
       el("runExportBtn").addEventListener("click", runExport);
 
       renderAll();

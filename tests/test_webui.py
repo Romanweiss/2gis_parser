@@ -3,7 +3,9 @@ from parser_2gis.webui import (
     build_city_records,
     build_country_records,
     build_leaf_rubric_records,
+    build_preset_records,
     resolve_selection,
+    rubric_matches_preset,
 )
 
 
@@ -28,6 +30,30 @@ def test_build_city_records_preserves_custom_search_fields():
 
     assert troitsk['search_code'] == 'moscow'
     assert troitsk['query_suffix'] == 'Троицк'
+
+
+def test_rubric_matches_preset_respects_include_and_exclude_terms():
+    rubric = {
+        'label': 'Оптовые продажи стройматериалов',
+        'path': 'Оптовые продажи / Стройматериалы',
+        'top_group_label': 'Строительство',
+    }
+    preset = {
+        'include_terms': ['опт', 'строй'],
+        'exclude_terms': ['кафе'],
+    }
+
+    assert rubric_matches_preset(rubric, preset) is True
+
+
+def test_build_preset_records_returns_non_empty_core_presets():
+    rubrics = build_leaf_rubric_records(load_rubrics(is_russian=None))
+    presets = {preset['id']: preset for preset in build_preset_records(rubrics)}
+
+    assert presets['b2b_logistics']['rubrics_count'] > 0
+    assert presets['wholesale']['rubrics_count'] > 0
+    assert presets['construction']['rubrics_count'] > 0
+    assert presets['manufacturing']['rubrics_count'] > 0
 
 
 def test_resolve_selection_validates_codes_and_returns_groups():

@@ -32,6 +32,7 @@ DEFAULT_PORT = 8787
 DATA_DIR = Path(os.environ.get('PARSER_2GIS_DATA_DIR', '/data'))
 PROFILES_DIR = DATA_DIR / 'profiles'
 HTML_PATH = data_path() / 'webui' / 'index.html'
+PRESETS_PATH = data_path() / 'rubric_presets.json'
 MAX_LOG_LINES = 400
 
 COUNTRY_NAMES = {
@@ -73,6 +74,63 @@ def safe_slug(value: str, default: str) -> str:
 
 def timestamp_suffix() -> str:
     return time.strftime('%Y%m%d-%H%M%S')
+
+
+def normalize_match_text(value: str) -> str:
+    return ' '.join(value.lower().replace('ё', 'е').split())
+
+
+def load_rubric_preset_definitions() -> list[dict[str, Any]]:
+    if not PRESETS_PATH.exists():
+        return []
+
+    payload = json.loads(PRESETS_PATH.read_text(encoding='utf-8'))
+    if not isinstance(payload, list):
+        raise SystemExit(f'Файл {PRESETS_PATH} должен содержать список пресетов.')
+
+    return payload
+
+
+def rubric_matches_preset(rubric: dict[str, Any], preset_definition: dict[str, Any]) -> bool:
+    search_text = normalize_match_text(
+        f'{rubric["label"]} {rubric["path"]} {rubric["top_group_label"]}'
+    )
+    include_terms = [
+        normalize_match_text(term)
+        for term in preset_definition.get('include_terms', [])
+        if str(term).strip()
+    ]
+    exclude_terms = [
+        normalize_match_text(term)
+        for term in preset_definition.get('exclude_terms', [])
+        if str(term).strip()
+    ]
+    if not include_terms:
+        return False
+
+    if not any(term in search_text for term in include_terms):
+        return False
+
+    return not any(term in search_text for term in exclude_terms)
+
+
+def build_preset_records(rubrics: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    presets: list[dict[str, Any]] = []
+    for preset_definition in load_rubric_preset_definitions():
+        matched_rubrics = [
+            rubric for rubric in rubrics
+            if rubric_matches_preset(rubric, preset_definition)
+        ]
+        presets.append({
+            'id': preset_definition['id'],
+            'label': preset_definition['label'],
+            'description': preset_definition.get('description', ''),
+            'group_ids': sorted({rubric['top_group_id'] for rubric in matched_rubrics}),
+            'rubric_ids': [rubric['code'] for rubric in matched_rubrics],
+            'rubrics_count': len(matched_rubrics),
+        })
+
+    return presets
 
 
 def find_top_group_id(rubrics: dict[str, dict[str, Any]], node_id: str) -> str:
@@ -167,10 +225,12 @@ def get_catalogs() -> dict[str, Any]:
     cities = load_cities()
     rubrics = load_rubrics(is_russian=None)
     leaf_records = build_leaf_rubric_records(rubrics)
+    presets = build_preset_records(leaf_records)
     return {
         'cities': build_city_records(cities),
         'countries': build_country_records(cities),
         'groups': build_group_records(rubrics, leaf_records),
+        'presets': presets,
         'rubrics': leaf_records,
         'rubrics_tree': rubrics,
     }
@@ -367,6 +427,7 @@ def create_app() -> Flask:
             'countries': catalogs['countries'],
             'cities': catalogs['cities'],
             'groups': catalogs['groups'],
+            'presets': catalogs['presets'],
             'rubrics': catalogs['rubrics'],
             'profiles': list_profile_summaries(),
             'defaults': {
